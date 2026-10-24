@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Scripts</h1>
+<div class="grid">
+  {% for s in scripts %}
+  <div class="card">
+    <h2>{{ s.name }}</h2>
+    <p>{{ s.description }}</p>
+    <div class="tags"><span>{{ s.language }}</span><span>{{ s.category }}</span></div>
+    <p class="meta">
+      {% if s.last_run_id %}
+        Last run: <a href="{{ url_for('run_detail', run_id=s.last_run_id) }}">
+        <span class="badge {{ s.last_status }}">{{ s.last_status }}</span></a>
+        {{ s.last_started.strftime('%Y-%m-%d %H:%M') }}
+      {% else %}Never run{% endif %}
+    </p>
+    <form method="post" action="{{ url_for('run', script_id=s.id) }}"><button>Run now</button></form>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

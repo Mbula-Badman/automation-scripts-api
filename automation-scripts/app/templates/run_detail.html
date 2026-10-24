@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ run.name }} <span class="badge {{ run.status }}">{{ run.status }}</span></h1>
+<p class="meta">Run #{{ run.id }} · exit code {{ run.exit_code if run.exit_code is not none else '-' }}
+  · {{ run.started_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+<h3>Output</h3>
+<pre>{{ run.output or '(none)' }}</pre>
+{% if run.error %}<h3>Errors</h3><pre>{{ run.error }}</pre>{% endif %}
+{% endblock %}

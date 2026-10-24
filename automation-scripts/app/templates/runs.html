@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Run history</h1>
+<table>
+  <tr><th>#</th><th>Script</th><th>Status</th><th>Started</th></tr>
+  {% for r in runs %}
+  <tr>
+    <td><a href="{{ url_for('run_detail', run_id=r.id) }}">{{ r.id }}</a></td>
+    <td>{{ r.name }}</td>
+    <td><span class="badge {{ r.status }}">{{ r.status }}</span></td>
+    <td>{{ r.started_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+  </tr>
+  {% else %}<tr><td colspan="4">No runs yet.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
