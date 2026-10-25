@@ -5,13 +5,14 @@ must live under scripts/, and are run without a shell.
 """
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 from .db import get_cursor, is_sqlite_database
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = ROOT / "scripts"
-INTERPRETERS = {"bash": "bash", "python": "python3"}
+INTERPRETERS = {"bash": "bash", "python": sys.executable}
 TIMEOUT_SECONDS = 60
 
 
