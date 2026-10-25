@@ -1,21 +1,94 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Scripts</h1>
-<div class="grid">
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">AUTOMATION CONTROL CENTER</p>
+    <h1>Your scripts, <span class="accent-text">in motion.</span></h1>
+    <p class="page-intro">Run your tools and keep an eye on what they report.</p>
+  </div>
+  <span class="live-indicator"><span></span> Workspace ready</span>
+</section>
+
+<section class="stats-grid" aria-label="Script overview">
+  <article class="stat-card">
+    <span class="stat-label">Available scripts</span>
+    <strong>{{ scripts|length }}</strong>
+    <span class="stat-note">Ready when you are</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Run at least once</span>
+    <strong>{{ scripts|selectattr('last_status')|list|length }}</strong>
+    <span class="stat-note">Scripts with run history</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">Latest runs need attention</span>
+    <strong>{{ (scripts|selectattr('last_status', 'equalto', 'warning')|list|length) + (scripts|selectattr('last_status', 'equalto', 'failed')|list|length) + (scripts|selectattr('last_status', 'equalto', 'timeout')|list|length) }}</strong>
+    <span class="stat-note">Warnings or unsuccessful runs</span>
+  </article>
+</section>
+
+<section class="scripts-section" aria-labelledby="scripts-heading">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">YOUR TOOLKIT</p>
+      <h2 id="scripts-heading">All scripts <span class="result-count" id="result-count" aria-live="polite">{{ scripts|length }}</span></h2>
+    </div>
+    <div class="filters" role="search">
+      <label class="search-field">
+        <span class="sr-only">Search scripts</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 4 4"></path></svg>
+        <input id="script-search" type="search" placeholder="Search scripts..." autocomplete="off">
+      </label>
+      <label>
+        <span class="sr-only">Filter by category</span>
+        <select id="category-filter">
+          <option value="">All categories</option>
+          {% for category in scripts|map(attribute='category')|unique|sort %}
+          <option value="{{ category }}">{{ category|title }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span class="sr-only">Filter by language</span>
+        <select id="language-filter">
+          <option value="">All languages</option>
+          {% for language in scripts|map(attribute='language')|unique|sort %}
+          <option value="{{ language }}">{{ language|title }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="grid" id="script-grid">
   {% for s in scripts %}
-  <div class="card">
-    <h2>{{ s.name }}</h2>
+  <article class="card" data-name="{{ s.name|lower }}" data-description="{{ s.description|lower }}" data-category="{{ s.category|lower }}" data-language="{{ s.language|lower }}">
+    <div class="card-topline">
+      <span class="script-icon" aria-hidden="true">{% if s.language == 'python' %}Py{% else %}$_{% endif %}</span>
+      {% if s.last_status %}
+      <span class="badge {{ s.last_status }}"><span class="status-dot"></span>{{ s.last_status }}</span>
+      {% else %}
+      <span class="badge never-run">Not run yet</span>
+      {% endif %}
+    </div>
+    <h3>{{ s.name }}</h3>
     <p>{{ s.description }}</p>
     <div class="tags"><span>{{ s.language }}</span><span>{{ s.category }}</span></div>
     <p class="meta">
       {% if s.last_run_id %}
         Last run: <a href="{{ url_for('run_detail', run_id=s.last_run_id) }}">
-        <span class="badge {{ s.last_status }}">{{ s.last_status }}</span></a>
-        {{ s.last_started.strftime('%Y-%m-%d %H:%M') }}
-      {% else %}Never run{% endif %}
+        {{ s.last_started.strftime('%b %d, %H:%M') }}</a>
+      {% else %}No run history{% endif %}
     </p>
-    <form method="post" action="{{ url_for('run', script_id=s.id) }}"><button>Run now</button></form>
+    <form method="post" action="{{ url_for('run', script_id=s.id) }}"><button class="run-button">Run script <span aria-hidden="true">→</span></button></form>
+  </article>
+  {% else %}
+  <div class="empty-state">
+    <h3>No scripts available</h3>
+    <p>Registered scripts will show up here when they are ready.</p>
   </div>
   {% endfor %}
-</div>
+  </div>
+  <p class="empty-state filter-empty" id="filter-empty" hidden>No scripts match those filters. Try a different search.</p>
+</section>
 {% endblock %}
